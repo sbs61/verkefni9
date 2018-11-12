@@ -22,11 +22,13 @@ const program = (() => {
     img.src = 'loading.gif';
   }
 
+  //Fall sem kallað er á þegar ýtt er á "leita". 
   function search(e){
     e.preventDefault();
 
-
     input = domains.querySelector('input').value;
+
+    //athuga hvort input sé tómur strengur
     if(input.trim() === ""){
       displayError("Lén verður að vera strengur");
     }
@@ -34,18 +36,20 @@ const program = (() => {
       checkURL(input);
     }
   }
-
+  //Fall sem birtir villuskilaboð
   function displayError(error){
     removePrevResult();
     result.appendChild(document.createTextNode(error));
   }
 
+  //Fall sem fjarlægir síðustu skilaboð/niðurstöðu
   function removePrevResult(){
     while (result.firstChild) {
       result.removeChild(result.firstChild);
     }
   }
 
+  //Fall sem teiknar loading myndina ásamt texta
   function loading(){
     removePrevResult();
     
@@ -56,9 +60,11 @@ const program = (() => {
     result.appendChild(div);
   }
 
+  //Fall sem meðhöndlar strenginn sem skrifaður var inn í input reitinn.
   function checkURL(url){
     loading();
     
+    //Sæki gögnin
     fetch(`${API_URL}${url}`)
       .then((response) => {
         if (response.ok) {
@@ -74,6 +80,7 @@ const program = (() => {
       });
   }
 
+  //Fall sem birtir gögnin af síðunni
   function displayDomain(domainResult) {
     if (domainResult.length === 0) {
       displayError('Lén er ekki skráð');
@@ -98,6 +105,7 @@ const program = (() => {
     result.appendChild(dl);
   }
 
+  //Fall sem bætir hverju staki í result listanum af síðunni í element sem er birt
   function addToList(dl, title, data) {
     if (data) {
       const dataElement = document.createElement('dt');
@@ -109,6 +117,7 @@ const program = (() => {
     }
   }
 
+  //Breyti dagsetningunni á ISO 8601 form
   function formatDate(date) {
     date = date.toISOString().split('T')[0];
     return date;
