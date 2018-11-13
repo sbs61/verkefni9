@@ -4,13 +4,16 @@
   "description": "verkefni 9",
   "main": "index.js",
   "scripts": {
-    "test": "",
+    "test": "eslint *.js **/*.js",
     "dev": "browser-sync start --server --files index.html styles.css scripts.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "browser-sync": "^2.26.3"
+    "browser-sync": "^2.26.3",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0"
   }
 }

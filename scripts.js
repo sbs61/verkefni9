@@ -7,52 +7,25 @@ const domains = document.querySelector('.domains');
  * Leit að lénum á Íslandi gegnum apis.is
  */
 const program = (() => {
-  let domain
-  let result = domains.querySelector('.results');
+  const result = domains.querySelector('.results');
   let img;
 
-
-  
-
-  function init(_domain) {
-    domain = _domain;
-    _domain.addEventListener('submit', search)
-
-    img = document.createElement('IMG');
-    img.src = 'loading.gif';
-  }
-
-  //Fall sem kallað er á þegar ýtt er á "leita". 
-  function search(e){
-    e.preventDefault();
-
-    input = domains.querySelector('input').value;
-
-    //athuga hvort input sé tómur strengur
-    if(input.trim() === ""){
-      displayError("Lén verður að vera strengur");
-    }
-    else{
-      checkURL(input);
-    }
-  }
-  //Fall sem birtir villuskilaboð
-  function displayError(error){
-    removePrevResult();
-    result.appendChild(document.createTextNode(error));
-  }
-
-  //Fall sem fjarlægir síðustu skilaboð/niðurstöðu
-  function removePrevResult(){
+  // Fall sem fjarlægir síðustu skilaboð/niðurstöðu
+  function removePrevResult() {
     while (result.firstChild) {
       result.removeChild(result.firstChild);
     }
   }
 
-  //Fall sem teiknar loading myndina ásamt texta
-  function loading(){
+  // Fall sem birtir villuskilaboð
+  function displayError(error) {
     removePrevResult();
-    
+    result.appendChild(document.createTextNode(error));
+  }
+
+  // Fall sem teiknar loading myndina ásamt texta
+  function loading() {
+    removePrevResult();
     const div = document.createElement('div');
     div.classList.add('loading');
     div.appendChild(img);
@@ -60,35 +33,35 @@ const program = (() => {
     result.appendChild(div);
   }
 
-  //Fall sem meðhöndlar strenginn sem skrifaður var inn í input reitinn.
-  function checkURL(url){
-    loading();
-    
-    //Sæki gögnin
-    fetch(`${API_URL}${url}`)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error('Villa kom upp');
-      })
-      .then((data) => {
-        displayDomain(data.results);
-      })
-      .catch(() => {
-        displayError('Villa við að sækja gögn');
-      });
+  // Fall sem bætir hverju staki í result listanum af síðunni í element sem er birt
+  function addToList(dl, title, data) {
+    if (data) {
+      const dataElement = document.createElement('dt');
+      dataElement.appendChild(document.createTextNode(title));
+      const dataElementValue = document.createElement('dd');
+      dataElementValue.appendChild(document.createTextNode(data));
+      dl.appendChild(dataElement);
+      dl.appendChild(dataElementValue);
+    }
   }
 
-  //Fall sem birtir gögnin af síðunni
+  // Breyti dagsetningunni á ISO 8601 form
+  function formatDate(date) {
+    const d = date.toISOString().split('T')[0];
+    return d;
+  }
+
+  // Fall sem birtir gögnin af síðunni
   function displayDomain(domainResult) {
     if (domainResult.length === 0) {
       displayError('Lén er ekki skráð');
       return;
     }
 
-    const [{domain, registered, lastChange, expires,
-      registrantname, email, address, country,}] = domainResult;
+    const [{
+      domain, registered, lastChange, expires,
+      registrantname, email, address, country,
+    }] = domainResult;
 
     const dl = document.createElement('dl');
 
@@ -105,22 +78,44 @@ const program = (() => {
     result.appendChild(dl);
   }
 
-  //Fall sem bætir hverju staki í result listanum af síðunni í element sem er birt
-  function addToList(dl, title, data) {
-    if (data) {
-      const dataElement = document.createElement('dt');
-      dataElement.appendChild(document.createTextNode(title));
-      const dataElementValue = document.createElement('dd');
-      dataElementValue.appendChild(document.createTextNode(data));
-      dl.appendChild(dataElement);
-      dl.appendChild(dataElementValue);
+  // Fall sem meðhöndlar strenginn sem skrifaður var inn í input reitinn.
+  function checkURL(url) {
+    loading();
+    // Sæki gögnin
+    // eslint-disable-next-line no-undef
+    fetch(`${API_URL}${url}`)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Villa kom upp');
+      })
+      .then((data) => {
+        displayDomain(data.results);
+      })
+      .catch(() => {
+        displayError('Villa við að sækja gögn');
+      });
+  }
+  // Fall sem kallað er á þegar ýtt er á "leita".
+  function search(e) {
+    e.preventDefault();
+
+    const input = domains.querySelector('input').value;
+
+    // athuga hvort input sé tómur strengur
+    if (input.trim() === '') {
+      displayError('Lén verður að vera strengur');
+    } else {
+      checkURL(input);
     }
   }
 
-  //Breyti dagsetningunni á ISO 8601 form
-  function formatDate(date) {
-    date = date.toISOString().split('T')[0];
-    return date;
+  function init(_domain) {
+    _domain.addEventListener('submit', search);
+
+    img = document.createElement('IMG');
+    img.src = 'loading.gif';
   }
 
   return {
